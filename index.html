@@ -55,7 +55,6 @@
 </head>
 <body>
 
-  <!-- ① ログイン画面 -->
   <div id="screen-login" class="screen active">
     <div class="login-box">
       <div class="login-title">COMPASS<br>英語長文トレーニング</div>
@@ -64,16 +63,13 @@
     </div>
   </div>
 
-  <!-- ② モード選択画面 -->
   <div id="screen-mode" class="screen">
     <div class="mode-container">
       <div class="mode-heading">学習モードを選んでください</div>
-      
       <div class="mode-card basic" onclick="chooseAppMode('basic')">
         <div class="mode-title">🌱 基礎スモールステップ編</div>
-        <div class="mode-desc">基本の3問で着実に理解！苦手な生徒も安心して成功体験を積めるスタンダードモード。</div>
+        <div class="mode-desc">基本の3問で着実に理解！苦手な生徒も安心して成功体験を積めるモード。</div>
       </div>
-      
       <div class="mode-card advanced" onclick="chooseAppMode('advanced')">
         <div class="mode-title">🔥 受験対策・発展編</div>
         <div class="mode-desc">公立高校入試レベルの歯ごたえある長文・設問に挑戦するハイレベルモード。</div>
@@ -81,7 +77,6 @@
     </div>
   </div>
 
-  <!-- ③ テーマ選択画面 -->
   <div id="screen-select" class="screen">
     <div class="header-basic">
       <div class="header-left-group">
@@ -95,7 +90,6 @@
     </div>
   </div>
 
-  <!-- ④ 学習画面 -->
   <div id="screen-play" class="screen">
     <header>
       <button class="back-to-select-btn" onclick="changeAppScreen('screen-select')">◀ テーマ一覧へ</button>
@@ -103,10 +97,8 @@
     </header>
     <div id="main-container">
       <div id="passage-area"></div>
-      
       <div id="question-area">
         <div id="dynamic-questions"></div>
-        
         <div class="action-btn-container">
           <button id="submit-btn" class="submit-btn" onclick="gradeAppAnswers()">採点して結果を見る</button>
           <button id="return-btn" class="return-btn" onclick="changeAppScreen('screen-select')">📚 別の問題を選ぶ</button>
@@ -115,17 +107,14 @@
     </div>
   </div>
 
-  <!-- ここから下が超重要なプログラム本体です。最後までコピーしてください！ -->
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw5Pzvk8iz8V-C4wD-srpmJ4yNwlgkBMDdRiIm9P3uTVs3BgbnGrX8cifHe3B4AMKd7lA/exec"; 
-    
     let studentName = "";
     let currentMode = "basic"; 
     let allThemesData = []; 
     let currentThemeData = null; 
 
-    // 新しく名前を変えた関数群
-    function startLoginApp() {
+    window.startLoginApp = function() {
       const idInput = document.getElementById('student-id').value.trim();
       if (!idInput) {
         alert("生徒IDまたは名前を入力してください。");
@@ -133,98 +122,109 @@
       }
       studentName = idInput;
       document.getElementById('display-user-name').innerText = studentName;
-      
       changeAppScreen('screen-mode');
-      
-      if (allThemesData.length === 0) {
-        fetchAppGASData();
-      }
-    }
+      if (allThemesData.length === 0) fetchAppGASData();
+    };
 
-    function chooseAppMode(mode) {
+    window.chooseAppMode = function(mode) {
       currentMode = mode;
-      
-      if (currentMode === 'basic') {
-        document.getElementById('header-mode-title').innerText = "基礎スモールステップ編";
-      } else {
-        document.getElementById('header-mode-title').innerText = "受験対策・発展編";
-      }
-      
+      document.getElementById('header-mode-title').innerText = (mode === 'basic') ? "基礎スモールステップ編" : "受験対策・発展編";
       renderAppThemeList();
       changeAppScreen('screen-select');
-    }
+    };
 
-    function fetchAppGASData() {
+    window.fetchAppGASData = function() {
       fetch(GAS_URL)
         .then(function(res) { return res.json(); })
-        .then(function(data) {
-          allThemesData = data;
-        })
-        .catch(function(e) {
-          document.getElementById('theme-list-container').innerHTML = '<div style="text-align:center; color:red; margin-top:20px;">読込エラーが発生しました。</div>';
-        });
-    }
+        .then(function(data) { allThemesData = data; })
+        .catch(function(e) { document.getElementById('theme-list-container').innerHTML = '<div style="text-align:center; color:red; margin-top:20px;">読込エラーが発生しました。</div>'; });
+    };
 
-    function renderAppThemeList() {
+    window.renderAppThemeList = function() {
       const container = document.getElementById('theme-list-container');
       container.innerHTML = ""; 
-
       const filteredThemes = allThemesData.filter(function(theme) {
         const lvl = String(theme.level || "");
-        const isAdvanced = (lvl.indexOf("受験") !== -1 || lvl.indexOf("発展") !== -1 || lvl.indexOf("難関") !== -1);
-        
-        if (currentMode === 'advanced') {
-          return isAdvanced; 
-        } else {
-          return !isAdvanced; 
-        }
+        const isAdv = (lvl.indexOf("受験") !== -1 || lvl.indexOf("発展") !== -1 || lvl.indexOf("難関") !== -1);
+        return (currentMode === 'advanced') ? isAdv : !isAdv;
       });
-
       if (filteredThemes.length === 0) {
         container.innerHTML = '<div style="text-align:center; margin-top:40px; color:#7f8c8d;">このモードのデータがありません。</div>';
         return;
       }
-
       filteredThemes.forEach(function(theme) {
         const realIndex = allThemesData.indexOf(theme);
         const itemClass = (currentMode === 'advanced') ? 'theme-item advanced-item' : 'theme-item';
-        
-        const itemHtml = '<div class="' + itemClass + '" onclick="startAppTheme(' + realIndex + ')">' +
-            '<div class="theme-info">' +
-              '<div class="theme-level">レベル: ' + theme.level + '</div>' +
-              '<div class="theme-name">' + theme.theme + '</div>' +
-            '</div>' +
-            '<div class="theme-arrow">挑戦する ▶</div>' +
-          '</div>';
-        container.innerHTML += itemHtml;
+        container.innerHTML += '<div class="' + itemClass + '" onclick="startAppTheme(' + realIndex + ')">' +
+            '<div class="theme-info"><div class="theme-level">レベル: ' + theme.level + '</div><div class="theme-name">' + theme.theme + '</div></div>' +
+            '<div class="theme-arrow">挑戦する ▶</div></div>';
       });
-    }
+    };
 
-    function startAppTheme(index) {
+    window.startAppTheme = function(index) {
       currentThemeData = allThemesData[index];
-      
       document.getElementById('play-header-theme').innerText = currentThemeData.theme + ' (' + currentThemeData.level + ')';
       document.getElementById('passage-area').innerHTML = '<p>' + currentThemeData.passage_en.replace(/\n/g, '<br>') + '</p>';
-
       const qContainer = document.getElementById('dynamic-questions');
-      qContainer.innerHTML = "";
-      qContainer.innerHTML += buildAppQuestionHTML(1, currentThemeData.q1);
-      qContainer.innerHTML += buildAppQuestionHTML(2, currentThemeData.q2);
-      qContainer.innerHTML += buildAppQuestionHTML(3, currentThemeData.q3);
-
+      qContainer.innerHTML = buildAppQuestionHTML(1, currentThemeData.q1) + buildAppQuestionHTML(2, currentThemeData.q2) + buildAppQuestionHTML(3, currentThemeData.q3);
       const submitBtn = document.getElementById('submit-btn');
-      submitBtn.innerText = "採点して結果を見る";
-      submitBtn.style.backgroundColor = "#e74c3c";
-      submitBtn.disabled = false;
-      submitBtn.style.display = "block";
-
+      submitBtn.innerText = "採点して結果を見る"; submitBtn.style.backgroundColor = "#e74c3c"; submitBtn.disabled = false; submitBtn.style.display = "block";
       document.getElementById('return-btn').style.display = "none"; 
-
-      document.getElementById('passage-area').scrollTop = 0;
-      document.getElementById('question-area').scrollTop = 0;
-
+      document.getElementById('passage-area').scrollTop = 0; document.getElementById('question-area').scrollTop = 0;
       changeAppScreen('screen-play');
-    }
+    };
 
-    function buildAppQuestionHTML(qNum, qData) {
-      let html = '<div class="question-card"
+    window.buildAppQuestionHTML = function(qNum, qData) {
+      let html = '<div class="question-card" id="q' + qNum + '-card"><div class="question-title">問' + qNum + ' ' + (qData.type === 'TF' ? '(True or False)' : '(抜き出し)') + '</div><div class="question-text">' + qData.question + '</div>';
+      if (qData.type === 'TF') {
+        html += '<div class="tf-buttons"><div class="tf-btn" onclick="selectAppTf(\'q' + qNum + '\', \'True\')">True (正)</div><div class="tf-btn" onclick="selectAppTf(\'q' + qNum + '\', \'False\')">False (誤)</div></div><input type="hidden" id="q' + qNum + '-ans-hidden" value="">';
+      } else {
+        html += '<input type="text" id="q' + qNum + '-ans-input" class="extract-input" placeholder="英単語を入力" oninput="document.getElementById(\'q' + qNum + '-ans-hidden\').value = this.value"><input type="hidden" id="q' + qNum + '-ans-hidden" value="">';
+      }
+      return html + '<div class="feedback-area" id="q' + qNum + '-feedback"></div></div>';
+    };
+
+    window.selectAppTf = function(qId, value) {
+      if (document.getElementById(qId + '-card').classList.contains('locked')) return;
+      document.getElementById(qId + '-ans-hidden').value = value;
+      const btns = document.getElementById(qId + '-card').querySelectorAll('.tf-btn');
+      for (let i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+      event.target.classList.add('active');
+    };
+
+    window.gradeAppAnswers = function() {
+      let score = 0; let missedList = []; 
+      for (let i = 1; i <= 3; i++) {
+        let qId = 'q' + i; let qData = currentThemeData[qId]; 
+        let userAnswer = document.getElementById(qId + '-ans-hidden').value.trim().toLowerCase(); 
+        let correctAnswer = String(qData.answer).toLowerCase();
+        let feedbackEl = document.getElementById(qId + '-feedback');
+        if(userAnswer === "") { alert('問' + i + ' が解かれていません！'); return; }
+        if (userAnswer === correctAnswer) {
+          score++; feedbackEl.innerHTML = '<strong>⭕ 正解！</strong><br>' + qData.exp; feedbackEl.classList.add('correct');
+        } else {
+          missedList.push('問' + i); feedbackEl.innerHTML = '<strong>❌ 違うよ！</strong> (正解: ' + qData.answer + ')<br>' + qData.exp; feedbackEl.classList.remove('correct');
+        }
+        feedbackEl.style.display = 'block'; document.getElementById(qId + '-card').classList.add('locked'); 
+      }
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.innerText = "採点＆成績を記録中..."; submitBtn.style.backgroundColor = "#f39c12"; submitBtn.disabled = true; 
+      
+      fetch(GAS_URL, {
+        method: "POST",
+        body: JSON.stringify({ studentName: studentName, theme: currentThemeData.theme + (currentMode === 'advanced' ? ' [受験・発展]' : ' [基礎]'), level: currentThemeData.level, score: score, missedQuestions: missedList.length > 0 ? missedList.join(", ") : "パーフェクト！" })
+      }).then(function(res) { return res.json(); }).then(function(result) {
+        submitBtn.innerText = "得点: " + score + " / 3 問正解 (記録完了！)"; submitBtn.style.backgroundColor = '#27ae60'; document.getElementById('return-btn').style.display = "block";
+      }).catch(function(e) {
+        submitBtn.innerText = "得点: " + score + " / 3 問正解 (記録エラー)"; submitBtn.style.backgroundColor = '#e74c3c'; document.getElementById('return-btn').style.display = "block";
+      });
+    };
+
+    window.changeAppScreen = function(screenId) {
+      const screens = document.querySelectorAll('.screen');
+      for (let i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+      document.getElementById(screenId).classList.add('active');
+    };
+  </script>
+</body>
+</html>
