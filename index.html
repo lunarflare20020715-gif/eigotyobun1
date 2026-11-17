@@ -174,7 +174,6 @@
       const qContainer = document.getElementById('dynamic-questions');
       let questionsHtml = "";
       
-      // ★超進化ポイント：データ(q1, q2, q3...)がある分だけ、自動で無限に問題を作成する魔法のループ
       let qNum = 1;
       while (currentThemeData['q' + qNum]) {
         questionsHtml += buildAppQuestionHTML(qNum, currentThemeData['q' + qNum]);
@@ -225,7 +224,6 @@
     window.gradeAppAnswers = function() {
       let score = 0; let missedList = []; 
       
-      // ★超進化ポイント：問題数を自動で数える
       let totalQuestions = 0;
       while (currentThemeData['q' + (totalQuestions + 1)]) {
         totalQuestions++;
@@ -251,6 +249,12 @@
         feedbackEl.style.display = 'block'; 
         document.getElementById(qId + '-card').classList.add('locked'); 
       }
+
+      // ★追加機能：採点完了後、英語長文の下に「日本語訳」を表示する！
+      const passageArea = document.getElementById('passage-area');
+      if (currentThemeData.passage_ja) {
+        passageArea.innerHTML += '<div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #bdc3c7;"><div style="color: #27ae60; font-weight: bold; margin-bottom: 10px;">💡 日本語訳</div><p style="font-size: 15px; color: #555;">' + currentThemeData.passage_ja.replace(/\n/g, '<br>') + '</p></div>';
+      }
       
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.innerText = "採点＆成績を記録中..."; 
@@ -264,7 +268,6 @@
         method: "POST",
         body: JSON.stringify({ studentName: studentName, theme: finalThemeName, level: currentThemeData.level, score: score, missedQuestions: missedStr })
       }).then(function(res) { return res.json(); }).then(function(result) {
-        // ★表示される満点の数字も自動で変わるように設定
         submitBtn.innerText = "得点: " + score + " / " + totalQuestions + " 問正解 (記録完了！)"; 
         submitBtn.style.backgroundColor = '#27ae60'; 
         document.getElementById('return-btn').style.display = "block";
