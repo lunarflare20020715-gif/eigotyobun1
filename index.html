@@ -6,7 +6,8 @@
   <title>COMPASS 英語長文トレーニング</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; background: #f4f7f6; color: #333; overflow: hidden; }
+    /* スタイリッシュ・ミントの背景色 */
+    body { font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; background: #fdfdfd; color: #333; overflow: hidden; }
     .screen { display: none; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
     .screen.active { display: flex; }
     #screen-login { justify-content: center; align-items: center; background: #2c3e50; }
@@ -22,6 +23,7 @@
     .mode-card.advanced { border-left: 6px solid #e74c3c; }
     .mode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
     .mode-desc { font-size: 13px; color: #7f8c8d; line-height: 1.4; }
+    /* スタイリッシュ・ミントのヘッダー色 */
     .header-basic { background: #2d3436; color: #fff; padding: 15px 20px; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .header-left-group { display: flex; align-items: center; gap: 10px; }
     .back-to-mode-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
@@ -33,7 +35,8 @@
     .theme-level { font-size: 13px; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
     .theme-name { font-size: 18px; font-weight: bold; color: #2c3e50; }
     .theme-arrow { color: #3498db; font-weight: bold; font-size: 16px; }
-    header { background:#2d3436 ; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: bold; }
+    /* スタイリッシュ・ミントのヘッダー色 */
+    header { background: #2d3436; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: bold; }
     .back-to-select-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
     #main-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
     #passage-area { flex: none; min-height: 35%; max-height: 55%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; }
@@ -46,6 +49,7 @@
     .tf-btn.active { border-color: #3498db; background: #ebf5fb; color: #2980b9; }
     .extract-input { width: 100%; padding: 14px; font-size: 16px; border: 2px solid #bdc3c7; border-radius: 8px; outline: none; }
     .action-btn-container { margin-top: 10px; margin-bottom: 40px; }
+    /* スタイリッシュ・ミントのボタン色 */
     .submit-btn { width: 100%; padding: 16px; background: #00b894; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
     .return-btn { width: 100%; padding: 16px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 12px; cursor: pointer; display: none; }
     .feedback-area { display: none; margin-top: 15px; padding: 15px; background: #fdf5f6; border: 1px solid #fadbd8; border-radius: 8px; color: #c0392b; font-size: 15px; line-height: 1.6; }
@@ -86,7 +90,7 @@
       <span class="user-badge" id="display-user-name">生徒名</span>
     </div>
     <div id="theme-list-container">
-      <div style="text-align:center; margin-top:40px; color:#fdfdfd;">データを読み込み中...<br>少しお待ちください</div>
+      <div style="text-align:center; margin-top:40px; color:#7f8c8d;">データを読み込み中...<br>少しお待ちください</div>
     </div>
   </div>
 
@@ -123,108 +127,3 @@
       studentName = idInput;
       document.getElementById('display-user-name').innerText = studentName;
       changeAppScreen('screen-mode');
-      if (allThemesData.length === 0) fetchAppGASData();
-    };
-
-    window.chooseAppMode = function(mode) {
-      currentMode = mode;
-      document.getElementById('header-mode-title').innerText = (mode === 'basic') ? "基礎スモールステップ編" : "受験対策・発展編";
-      renderAppThemeList();
-      changeAppScreen('screen-select');
-    };
-
-    window.fetchAppGASData = function() {
-      fetch(GAS_URL)
-        .then(function(res) { return res.json(); })
-        .then(function(data) { allThemesData = data; })
-        .catch(function(e) { document.getElementById('theme-list-container').innerHTML = '<div style="text-align:center; color:red; margin-top:20px;">読込エラーが発生しました。</div>'; });
-    };
-
-    window.renderAppThemeList = function() {
-      const container = document.getElementById('theme-list-container');
-      container.innerHTML = ""; 
-      const filteredThemes = allThemesData.filter(function(theme) {
-        const lvl = String(theme.level || "");
-        const isAdv = (lvl.indexOf("受験") !== -1 || lvl.indexOf("発展") !== -1 || lvl.indexOf("難関") !== -1);
-        return (currentMode === 'advanced') ? isAdv : !isAdv;
-      });
-      if (filteredThemes.length === 0) {
-        container.innerHTML = '<div style="text-align:center; margin-top:40px; color:#7f8c8d;">このモードのデータがありません。</div>';
-        return;
-      }
-      filteredThemes.forEach(function(theme) {
-        const realIndex = allThemesData.indexOf(theme);
-        const itemClass = (currentMode === 'advanced') ? 'theme-item advanced-item' : 'theme-item';
-        container.innerHTML += '<div class="' + itemClass + '" onclick="startAppTheme(' + realIndex + ')">' +
-            '<div class="theme-info"><div class="theme-level">レベル: ' + theme.level + '</div><div class="theme-name">' + theme.theme + '</div></div>' +
-            '<div class="theme-arrow">挑戦する ▶</div></div>';
-      });
-    };
-
-    window.startAppTheme = function(index) {
-      currentThemeData = allThemesData[index];
-      document.getElementById('play-header-theme').innerText = currentThemeData.theme + ' (' + currentThemeData.level + ')';
-      document.getElementById('passage-area').innerHTML = '<p>' + currentThemeData.passage_en.replace(/\n/g, '<br>') + '</p>';
-      const qContainer = document.getElementById('dynamic-questions');
-      qContainer.innerHTML = buildAppQuestionHTML(1, currentThemeData.q1) + buildAppQuestionHTML(2, currentThemeData.q2) + buildAppQuestionHTML(3, currentThemeData.q3);
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.innerText = "採点して結果を見る"; submitBtn.style.backgroundColor = "#e74c3c"; submitBtn.disabled = false; submitBtn.style.display = "block";
-      document.getElementById('return-btn').style.display = "none"; 
-      document.getElementById('passage-area').scrollTop = 0; document.getElementById('question-area').scrollTop = 0;
-      changeAppScreen('screen-play');
-    };
-
-    window.buildAppQuestionHTML = function(qNum, qData) {
-      let html = '<div class="question-card" id="q' + qNum + '-card"><div class="question-title">問' + qNum + ' ' + (qData.type === 'TF' ? '(True or False)' : '(抜き出し)') + '</div><div class="question-text">' + qData.question + '</div>';
-      if (qData.type === 'TF') {
-        html += '<div class="tf-buttons"><div class="tf-btn" onclick="selectAppTf(\'q' + qNum + '\', \'True\')">True (正)</div><div class="tf-btn" onclick="selectAppTf(\'q' + qNum + '\', \'False\')">False (誤)</div></div><input type="hidden" id="q' + qNum + '-ans-hidden" value="">';
-      } else {
-        html += '<input type="text" id="q' + qNum + '-ans-input" class="extract-input" placeholder="英単語を入力" oninput="document.getElementById(\'q' + qNum + '-ans-hidden\').value = this.value"><input type="hidden" id="q' + qNum + '-ans-hidden" value="">';
-      }
-      return html + '<div class="feedback-area" id="q' + qNum + '-feedback"></div></div>';
-    };
-
-    window.selectAppTf = function(qId, value) {
-      if (document.getElementById(qId + '-card').classList.contains('locked')) return;
-      document.getElementById(qId + '-ans-hidden').value = value;
-      const btns = document.getElementById(qId + '-card').querySelectorAll('.tf-btn');
-      for (let i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-      event.target.classList.add('active');
-    };
-
-    window.gradeAppAnswers = function() {
-      let score = 0; let missedList = []; 
-      for (let i = 1; i <= 3; i++) {
-        let qId = 'q' + i; let qData = currentThemeData[qId]; 
-        let userAnswer = document.getElementById(qId + '-ans-hidden').value.trim().toLowerCase(); 
-        let correctAnswer = String(qData.answer).toLowerCase();
-        let feedbackEl = document.getElementById(qId + '-feedback');
-        if(userAnswer === "") { alert('問' + i + ' が解かれていません！'); return; }
-        if (userAnswer === correctAnswer) {
-          score++; feedbackEl.innerHTML = '<strong>⭕ 正解！</strong><br>' + qData.exp; feedbackEl.classList.add('correct');
-        } else {
-          missedList.push('問' + i); feedbackEl.innerHTML = '<strong>❌ 違うよ！</strong> (正解: ' + qData.answer + ')<br>' + qData.exp; feedbackEl.classList.remove('correct');
-        }
-        feedbackEl.style.display = 'block'; document.getElementById(qId + '-card').classList.add('locked'); 
-      }
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.innerText = "採点＆成績を記録中..."; submitBtn.style.backgroundColor = "#f39c12"; submitBtn.disabled = true; 
-      
-      fetch(GAS_URL, {
-        method: "POST",
-        body: JSON.stringify({ studentName: studentName, theme: currentThemeData.theme + (currentMode === 'advanced' ? ' [受験・発展]' : ' [基礎]'), level: currentThemeData.level, score: score, missedQuestions: missedList.length > 0 ? missedList.join(", ") : "パーフェクト！" })
-      }).then(function(res) { return res.json(); }).then(function(result) {
-        submitBtn.innerText = "得点: " + score + " / 3 問正解 (記録完了！)"; submitBtn.style.backgroundColor = '#27ae60'; document.getElementById('return-btn').style.display = "block";
-      }).catch(function(e) {
-        submitBtn.innerText = "得点: " + score + " / 3 問正解 (記録エラー)"; submitBtn.style.backgroundColor = '#e74c3c'; document.getElementById('return-btn').style.display = "block";
-      });
-    };
-
-    window.changeAppScreen = function(screenId) {
-      const screens = document.querySelectorAll('.screen');
-      for (let i = 0; i < screens.length; i++) screens[i].classList.remove('active');
-      document.getElementById(screenId).classList.add('active');
-    };
-  </script>
-</body>
-</html>
