@@ -6,163 +6,88 @@
   <title>COMPASS 英語長文トレーニング</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background-color: #f4f7f6;
-      color: #333;
-      overflow: hidden;
-    }
-    .screen {
-      display: none;
-      flex-direction: column;
-      flex: 1;
-      height: 100%;
-      overflow: hidden;
-    }
-    .screen.active {
-      display: flex;
-    }
-    #screen-login {
-      justify-content: center;
-      align-items: center;
-      background-color: #2c3e50;
-    }
-    .login-box {
-      background: #fff;
-      padding: 30px 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .login-title {
-      font-size: 22px;
-      color: #2c3e50;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    .login-input {
-      width: 100%;
-      padding: 15px;
-      font-size: 18px;
-      border: 2px solid #bdc3c7;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .login-btn {
-      width: 100%;
-      padding: 15px;
-      background-color: #3498db;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .header-basic {
-      background-color: #2c3e50;
-      color: #fff;
-      padding: 15px 20px;
-      font-size: 16px;
-      font-weight: bold;
-      text-align: center;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .user-badge {
-      font-size: 13px;
-      background: rgba(255,255,255,0.2);
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-    #theme-list-container {
-      padding: 20px;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .theme-item {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      border-left: 6px solid #27ae60;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; background: #f4f7f6; color: #333; overflow: hidden; }
+    .screen { display: none; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
+    .screen.active { display: flex; }
+    #screen-login { justify-content: center; align-items: center; background: #2c3e50; }
+    .login-box { background: #fff; padding: 30px 20px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .login-title { font-size: 22px; color: #2c3e50; font-weight: bold; margin-bottom: 20px; }
+    .login-input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #bdc3c7; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+    .login-btn { width: 100%; padding: 15px; background: #3498db; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+    #screen-mode { justify-content: center; align-items: center; background: #34495e; padding: 20px; }
+    .mode-container { width: 100%; max-width: 400px; text-align: center; }
+    .mode-heading { color: #fff; font-size: 20px; margin-bottom: 25px; font-weight: bold; }
+    .mode-card { background: #fff; padding: 22px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; text-align: left; }
+    .mode-card.basic { border-left: 6px solid #27ae60; }
+    .mode-card.advanced { border-left: 6px solid #e74c3c; }
+    .mode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+    .mode-desc { font-size: 13px; color: #7f8c8d; line-height: 1.4; }
+    .header-basic { background: #2c3e50; color: #fff; padding: 15px 20px; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .header-left-group { display: flex; align-items: center; gap: 10px; }
+    .back-to-mode-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .user-badge { font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; }
+    #theme-list-container { padding: 20px; overflow-y: auto; flex: 1; }
+    .theme-item { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid #27ae60; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .theme-item.advanced-item { border-left-color: #e74c3c; }
     .theme-info { flex: 1; }
-    .theme-level { font-size: 14px; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
+    .theme-level { font-size: 13px; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
     .theme-name { font-size: 18px; font-weight: bold; color: #2c3e50; }
     .theme-arrow { color: #3498db; font-weight: bold; font-size: 16px; }
-    header {
-      background-color: #2c3e50;
-      color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 15px;
-      font-weight: bold;
-    }
-    .back-to-select-btn {
-      background: rgba(255,255,255,0.2);
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-size: 13px;
-      cursor: pointer;
-    }
+    header { background: #2c3e50; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: bold; }
+    .back-to-select-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
     #main-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-    #passage-area {
-      flex: none; 
-      min-height: 35%;
-      max-height: 55%; 
-      padding: 25px 20px;
-      background-color: #fff;
-      border-bottom: 3px solid #e0e0e0;
-      overflow-y: auto;
-      font-size: 16px;
-      line-height: 1.8;
-    }
-    #question-area { flex: 1; padding: 20px; background-color: #f4f7f6; overflow-y: auto; }
-    .question-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border-left: 5px solid #3498db; }
+    #passage-area { flex: none; min-height: 35%; max-height: 55%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; }
+    #question-area { flex: 1; padding: 20px; background: #f4f7f6; overflow-y: auto; }
+    .question-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #3498db; }
     .question-title { font-weight: bold; margin-bottom: 12px; color: #2980b9; font-size: 14px; }
     .question-text { font-size: 16px; margin-bottom: 15px; line-height: 1.5; }
     .tf-buttons { display: flex; gap: 12px; }
-    .tf-btn { flex: 1; padding: 14px; border: 2px solid #bdc3c7; background-color: #fff; border-radius: 8px; font-size: 16px; font-weight: bold; color: #7f8c8d; text-align: center; cursor: pointer; }
-    .tf-btn.active { border-color: #3498db; background-color: #ebf5fb; color: #2980b9; }
+    .tf-btn { flex: 1; padding: 14px; border: 2px solid #bdc3c7; background: #fff; border-radius: 8px; font-size: 16px; font-weight: bold; color: #7f8c8d; text-align: center; cursor: pointer; }
+    .tf-btn.active { border-color: #3498db; background: #ebf5fb; color: #2980b9; }
     .extract-input { width: 100%; padding: 14px; font-size: 16px; border: 2px solid #bdc3c7; border-radius: 8px; outline: none; }
     .action-btn-container { margin-top: 10px; margin-bottom: 40px; }
-    .submit-btn { width: 100%; padding: 16px; background-color: #e74c3c; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
-    .return-btn { width: 100%; padding: 16px; background-color: #27ae60; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 12px; cursor: pointer; display: none; }
-    .feedback-area { display: none; margin-top: 15px; padding: 15px; background-color: #fdf5f6; border: 1px solid #fadbd8; border-radius: 8px; color: #c0392b; font-size: 15px; line-height: 1.6; }
-    .feedback-area.correct { background-color: #e8f8f5; border-color: #d1f2eb; color: #16a085; }
+    .submit-btn { width: 100%; padding: 16px; background: #e74c3c; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+    .return-btn { width: 100%; padding: 16px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 12px; cursor: pointer; display: none; }
+    .feedback-area { display: none; margin-top: 15px; padding: 15px; background: #fdf5f6; border: 1px solid #fadbd8; border-radius: 8px; color: #c0392b; font-size: 15px; line-height: 1.6; }
+    .feedback-area.correct { background: #e8f8f5; border-color: #d1f2eb; color: #16a085; }
     .locked { pointer-events: none; opacity: 0.8; }
   </style>
 </head>
 <body>
 
+  <!-- ① ログイン画面 -->
   <div id="screen-login" class="screen active">
     <div class="login-box">
       <div class="login-title">COMPASS<br>英語長文トレーニング</div>
       <input type="text" id="student-id" class="login-input" placeholder="生徒ID または 名前">
-      <button class="login-btn" onclick="doLogin()">ログインして次へ</button>
+      <button class="login-btn" onclick="startLoginApp()">ログインして次へ</button>
     </div>
   </div>
 
+  <!-- ② モード選択画面 -->
+  <div id="screen-mode" class="screen">
+    <div class="mode-container">
+      <div class="mode-heading">学習モードを選んでください</div>
+      
+      <div class="mode-card basic" onclick="chooseAppMode('basic')">
+        <div class="mode-title">🌱 基礎スモールステップ編</div>
+        <div class="mode-desc">基本の3問で着実に理解！苦手な生徒も安心して成功体験を積めるスタンダードモード。</div>
+      </div>
+      
+      <div class="mode-card advanced" onclick="chooseAppMode('advanced')">
+        <div class="mode-title">🔥 受験対策・発展編</div>
+        <div class="mode-desc">公立高校入試レベルの歯ごたえある長文・設問に挑戦するハイレベルモード。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ テーマ選択画面 -->
   <div id="screen-select" class="screen">
     <div class="header-basic">
-      <span>解く問題を選んでください</span>
+      <div class="header-left-group">
+        <button class="back-to-mode-btn" onclick="changeAppScreen('screen-mode')">◀ モード変更</button>
+        <span id="header-mode-title" style="font-size:13px;">基礎編</span>
+      </div>
       <span class="user-badge" id="display-user-name">生徒名</span>
     </div>
     <div id="theme-list-container">
@@ -170,31 +95,37 @@
     </div>
   </div>
 
+  <!-- ④ 学習画面 -->
   <div id="screen-play" class="screen">
     <header>
-      <button class="back-to-select-btn" onclick="showScreen('screen-select')">◀ テーマ一覧へ</button>
+      <button class="back-to-select-btn" onclick="changeAppScreen('screen-select')">◀ テーマ一覧へ</button>
       <span id="play-header-theme">テーマ名</span>
     </header>
     <div id="main-container">
       <div id="passage-area"></div>
+      
       <div id="question-area">
         <div id="dynamic-questions"></div>
+        
         <div class="action-btn-container">
-          <button id="submit-btn" class="submit-btn" onclick="gradeAnswers()">採点して結果を見る</button>
-          <button id="return-btn" class="return-btn" onclick="showScreen('screen-select')">📚 別の問題を選ぶ</button>
+          <button id="submit-btn" class="submit-btn" onclick="gradeAppAnswers()">採点して結果を見る</button>
+          <button id="return-btn" class="return-btn" onclick="changeAppScreen('screen-select')">📚 別の問題を選ぶ</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ここから下が超重要なプログラム本体です。最後までコピーしてください！ -->
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw5Pzvk8iz8V-C4wD-srpmJ4yNwlgkBMDdRiIm9P3uTVs3BgbnGrX8cifHe3B4AMKd7lA/exec"; 
     
     let studentName = "";
+    let currentMode = "basic"; 
     let allThemesData = []; 
     let currentThemeData = null; 
 
-    function doLogin() {
+    // 新しく名前を変えた関数群
+    function startLoginApp() {
       const idInput = document.getElementById('student-id').value.trim();
       if (!idInput) {
         alert("生徒IDまたは名前を入力してください。");
@@ -203,39 +134,73 @@
       studentName = idInput;
       document.getElementById('display-user-name').innerText = studentName;
       
-      showScreen('screen-select');
-      fetchDataFromGAS();
+      changeAppScreen('screen-mode');
+      
+      if (allThemesData.length === 0) {
+        fetchAppGASData();
+      }
     }
 
-    function fetchDataFromGAS() {
+    function chooseAppMode(mode) {
+      currentMode = mode;
+      
+      if (currentMode === 'basic') {
+        document.getElementById('header-mode-title').innerText = "基礎スモールステップ編";
+      } else {
+        document.getElementById('header-mode-title').innerText = "受験対策・発展編";
+      }
+      
+      renderAppThemeList();
+      changeAppScreen('screen-select');
+    }
+
+    function fetchAppGASData() {
       fetch(GAS_URL)
-        .then(function(response) { return response.json(); })
+        .then(function(res) { return res.json(); })
         .then(function(data) {
           allThemesData = data;
-          renderThemeList(); 
         })
-        .catch(function(error) {
-          document.getElementById('theme-list-container').innerHTML = '<div style="text-align:center; color:red; margin-top:20px;">データの読み込みに失敗しました。<br>URLの確認や、GASの再デプロイを行ってください。</div>';
+        .catch(function(e) {
+          document.getElementById('theme-list-container').innerHTML = '<div style="text-align:center; color:red; margin-top:20px;">読込エラーが発生しました。</div>';
         });
     }
 
-    function renderThemeList() {
+    function renderAppThemeList() {
       const container = document.getElementById('theme-list-container');
       container.innerHTML = ""; 
 
-      allThemesData.forEach(function(theme, index) {
-        const itemHtml = '<div class="theme-item" onclick="startTheme(' + index + ')">' +
-          '<div class="theme-info">' +
-            '<div class="theme-level">レベル: ' + theme.level + '</div>' +
-            '<div class="theme-name">' + theme.theme + '</div>' +
-          '</div>' +
-          '<div class="theme-arrow">挑戦する ▶</div>' +
-        '</div>';
+      const filteredThemes = allThemesData.filter(function(theme) {
+        const lvl = String(theme.level || "");
+        const isAdvanced = (lvl.indexOf("受験") !== -1 || lvl.indexOf("発展") !== -1 || lvl.indexOf("難関") !== -1);
+        
+        if (currentMode === 'advanced') {
+          return isAdvanced; 
+        } else {
+          return !isAdvanced; 
+        }
+      });
+
+      if (filteredThemes.length === 0) {
+        container.innerHTML = '<div style="text-align:center; margin-top:40px; color:#7f8c8d;">このモードのデータがありません。</div>';
+        return;
+      }
+
+      filteredThemes.forEach(function(theme) {
+        const realIndex = allThemesData.indexOf(theme);
+        const itemClass = (currentMode === 'advanced') ? 'theme-item advanced-item' : 'theme-item';
+        
+        const itemHtml = '<div class="' + itemClass + '" onclick="startAppTheme(' + realIndex + ')">' +
+            '<div class="theme-info">' +
+              '<div class="theme-level">レベル: ' + theme.level + '</div>' +
+              '<div class="theme-name">' + theme.theme + '</div>' +
+            '</div>' +
+            '<div class="theme-arrow">挑戦する ▶</div>' +
+          '</div>';
         container.innerHTML += itemHtml;
       });
     }
 
-    function startTheme(index) {
+    function startAppTheme(index) {
       currentThemeData = allThemesData[index];
       
       document.getElementById('play-header-theme').innerText = currentThemeData.theme + ' (' + currentThemeData.level + ')';
@@ -243,9 +208,9 @@
 
       const qContainer = document.getElementById('dynamic-questions');
       qContainer.innerHTML = "";
-      qContainer.innerHTML += buildQuestionHTML(1, currentThemeData.q1);
-      qContainer.innerHTML += buildQuestionHTML(2, currentThemeData.q2);
-      qContainer.innerHTML += buildQuestionHTML(3, currentThemeData.q3);
+      qContainer.innerHTML += buildAppQuestionHTML(1, currentThemeData.q1);
+      qContainer.innerHTML += buildAppQuestionHTML(2, currentThemeData.q2);
+      qContainer.innerHTML += buildAppQuestionHTML(3, currentThemeData.q3);
 
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.innerText = "採点して結果を見る";
@@ -258,10 +223,8 @@
       document.getElementById('passage-area').scrollTop = 0;
       document.getElementById('question-area').scrollTop = 0;
 
-      showScreen('screen-play');
+      changeAppScreen('screen-play');
     }
 
-    function buildQuestionHTML(qNum, qData) {
-      let html = '<div class="question-card" id="q' + qNum + '-card">' +
-        '<div class="question-title">問' + qNum + ' ' + (qData.type === 'TF' ? '(True or False)' : '(抜き出し)') + '</div>' +
-        '<div class="question-text">' + qData.question + '</div>
+    function buildAppQuestionHTML(qNum, qData) {
+      let html = '<div class="question-card"
