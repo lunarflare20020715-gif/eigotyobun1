@@ -6,7 +6,6 @@
   <title>COMPASS 英語長文トレーニング</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    /* スタイリッシュ・ミントの背景色 */
     body { font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; background: #fdfdfd; color: #333; overflow: hidden; }
     .screen { display: none; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
     .screen.active { display: flex; }
@@ -23,7 +22,6 @@
     .mode-card.advanced { border-left: 6px solid #e74c3c; }
     .mode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
     .mode-desc { font-size: 13px; color: #7f8c8d; line-height: 1.4; }
-    /* スタイリッシュ・ミントのヘッダー色 */
     .header-basic { background: #2d3436; color: #fff; padding: 15px 20px; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .header-left-group { display: flex; align-items: center; gap: 10px; }
     .back-to-mode-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
@@ -48,7 +46,6 @@
     .tf-btn.active { border-color: #3498db; background: #ebf5fb; color: #2980b9; }
     .extract-input { width: 100%; padding: 14px; font-size: 16px; border: 2px solid #bdc3c7; border-radius: 8px; outline: none; }
     .action-btn-container { margin-top: 10px; margin-bottom: 40px; }
-    /* スタイリッシュ・ミントのボタン色 */
     .submit-btn { width: 100%; padding: 16px; background: #00b894; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
     .return-btn { width: 100%; padding: 16px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 12px; cursor: pointer; display: none; }
     .feedback-area { display: none; margin-top: 15px; padding: 15px; background: #fdf5f6; border: 1px solid #fadbd8; border-radius: 8px; color: #c0392b; font-size: 15px; line-height: 1.6; }
@@ -57,7 +54,6 @@
   </style>
 </head>
 <body>
-
   <div id="screen-login" class="screen active">
     <div class="login-box">
       <div class="login-title">COMPASS<br>英語長文トレーニング</div>
@@ -119,10 +115,7 @@
 
     window.startLoginApp = function() {
       const idInput = document.getElementById('student-id').value.trim();
-      if (!idInput) {
-        alert("生徒IDまたは名前を入力してください。");
-        return;
-      }
+      if (!idInput) { alert("生徒IDまたは名前を入力してください。"); return; }
       studentName = idInput;
       document.getElementById('display-user-name').innerText = studentName;
       changeAppScreen('screen-mode');
@@ -148,29 +141,23 @@
 
     window.renderAppThemeList = function() {
       const container = document.getElementById('theme-list-container');
-      
       if (allThemesData.length === 0) {
         container.innerHTML = '<div style="text-align:center; margin-top:40px; color:#7f8c8d;">データを読み込み中...<br>少しお待ちください</div>';
         return;
       }
-
       container.innerHTML = ""; 
       const filteredThemes = allThemesData.filter(function(theme) {
         const lvl = String(theme.level || "");
         const isAdv = (lvl.indexOf("受験") !== -1 || lvl.indexOf("発展") !== -1 || lvl.indexOf("難関") !== -1);
         return (currentMode === 'advanced') ? isAdv : !isAdv;
       });
-      
       if (filteredThemes.length === 0) {
         container.innerHTML = '<div style="text-align:center; margin-top:40px; color:#7f8c8d;">このモードのデータがありません。</div>';
         return;
       }
-      
       filteredThemes.forEach(function(theme) {
         const realIndex = allThemesData.indexOf(theme);
         const itemClass = (currentMode === 'advanced') ? 'theme-item advanced-item' : 'theme-item';
-        
-        // 途切れ防止のため、HTMLの組み立てを分割しています
         let itemHtml = '<div class="' + itemClass + '" onclick="startAppTheme(' + realIndex + ')">';
         itemHtml += '<div class="theme-info"><div class="theme-level">レベル: ' + theme.level + '</div>';
         itemHtml += '<div class="theme-name">' + theme.theme + '</div></div>';
@@ -185,9 +172,15 @@
       document.getElementById('passage-area').innerHTML = '<p>' + currentThemeData.passage_en.replace(/\n/g, '<br>') + '</p>';
       
       const qContainer = document.getElementById('dynamic-questions');
-      let questionsHtml = buildAppQuestionHTML(1, currentThemeData.q1);
-      questionsHtml += buildAppQuestionHTML(2, currentThemeData.q2);
-      questionsHtml += buildAppQuestionHTML(3, currentThemeData.q3);
+      let questionsHtml = "";
+      
+      // ★超進化ポイント：データ(q1, q2, q3...)がある分だけ、自動で無限に問題を作成する魔法のループ
+      let qNum = 1;
+      while (currentThemeData['q' + qNum]) {
+        questionsHtml += buildAppQuestionHTML(qNum, currentThemeData['q' + qNum]);
+        qNum++;
+      }
+      
       qContainer.innerHTML = questionsHtml;
 
       const submitBtn = document.getElementById('submit-btn');
@@ -203,12 +196,10 @@
       changeAppScreen('screen-play');
     };
 
-    // 途切れ防止のため、文字を短く区切って連結しています
     window.buildAppQuestionHTML = function(qNum, qData) {
       let html = '<div class="question-card" id="q' + qNum + '-card">';
       html += '<div class="question-title">問' + qNum + ' ' + (qData.type === 'TF' ? '(True or False)' : '(抜き出し)') + '</div>';
       html += '<div class="question-text">' + qData.question + '</div>';
-      
       if (qData.type === 'TF') {
         html += '<div class="tf-buttons">';
         html += '<div class="tf-btn" onclick="selectAppTf(\'q' + qNum + '\', \'True\')">True (正)</div>';
@@ -219,7 +210,6 @@
         html += '<input type="text" id="q' + qNum + '-ans-input" class="extract-input" placeholder="英単語を入力" oninput="document.getElementById(\'q' + qNum + '-ans-hidden\').value = this.value">';
         html += '<input type="hidden" id="q' + qNum + '-ans-hidden" value="">';
       }
-      
       html += '<div class="feedback-area" id="q' + qNum + '-feedback"></div></div>';
       return html;
     };
@@ -234,7 +224,14 @@
 
     window.gradeAppAnswers = function() {
       let score = 0; let missedList = []; 
-      for (let i = 1; i <= 3; i++) {
+      
+      // ★超進化ポイント：問題数を自動で数える
+      let totalQuestions = 0;
+      while (currentThemeData['q' + (totalQuestions + 1)]) {
+        totalQuestions++;
+      }
+
+      for (let i = 1; i <= totalQuestions; i++) {
         let qId = 'q' + i; let qData = currentThemeData[qId]; 
         let userAnswer = document.getElementById(qId + '-ans-hidden').value.trim().toLowerCase(); 
         let correctAnswer = String(qData.answer).toLowerCase();
@@ -267,11 +264,12 @@
         method: "POST",
         body: JSON.stringify({ studentName: studentName, theme: finalThemeName, level: currentThemeData.level, score: score, missedQuestions: missedStr })
       }).then(function(res) { return res.json(); }).then(function(result) {
-        submitBtn.innerText = "得点: " + score + " / 3 問正解 (記録完了！)"; 
+        // ★表示される満点の数字も自動で変わるように設定
+        submitBtn.innerText = "得点: " + score + " / " + totalQuestions + " 問正解 (記録完了！)"; 
         submitBtn.style.backgroundColor = '#27ae60'; 
         document.getElementById('return-btn').style.display = "block";
       }).catch(function(e) {
-        submitBtn.innerText = "得点: " + score + " / 3 問正解 (記録エラー)"; 
+        submitBtn.innerText = "得点: " + score + " / " + totalQuestions + " 問正解 (記録エラー)"; 
         submitBtn.style.backgroundColor = '#e74c3c'; 
         document.getElementById('return-btn').style.display = "block";
       });
