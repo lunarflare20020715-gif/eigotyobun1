@@ -36,7 +36,13 @@
     header { background: #2d3436; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: bold; }
     .back-to-select-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
     #main-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-    #passage-area { flex: none; min-height: 35%; max-height: 55%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; }
+    
+    /* ★追加：翻訳切り替えタブのデザイン */
+    .trans-tabs { display: none; flex-direction: row; background: #fff; border-bottom: 2px solid #00b894; flex: none; }
+    .trans-tab { flex: 1; padding: 12px; font-size: 15px; font-weight: bold; border: none; background: #f4f7f6; color: #7f8c8d; cursor: pointer; transition: 0.2s; }
+    .trans-tab.active { background: #00b894; color: #fff; }
+    
+    #passage-area { flex: none; min-height: 30%; max-height: 50%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; }
     #question-area { flex: 1; padding: 20px; background: #f4f7f6; overflow-y: auto; }
     .question-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #3498db; }
     .question-title { font-weight: bold; margin-bottom: 12px; color: #2980b9; font-size: 14px; }
@@ -95,7 +101,13 @@
       <span id="play-header-theme">テーマ名</span>
     </header>
     <div id="main-container">
+      <!-- ★追加：翻訳切り替えタブ（普段は非表示） -->
+      <div id="trans-tabs" class="trans-tabs">
+        <button id="tab-eng" class="trans-tab active" onclick="switchLang('eng')">🇺🇸 英語長文</button>
+        <button id="tab-jap" class="trans-tab" onclick="switchLang('jap')">🇯🇵 日本語訳</button>
+      </div>
       <div id="passage-area"></div>
+      
       <div id="question-area">
         <div id="dynamic-questions"></div>
         <div class="action-btn-container">
@@ -169,7 +181,10 @@
     window.startAppTheme = function(index) {
       currentThemeData = allThemesData[index];
       document.getElementById('play-header-theme').innerText = currentThemeData.theme + ' (' + currentThemeData.level + ')';
-      document.getElementById('passage-area').innerHTML = '<p>' + currentThemeData.passage_en.replace(/\n/g, '<br>') + '</p>';
+      
+      // 最初はタブを隠し、強制的に「英語長文」を表示させる
+      document.getElementById('trans-tabs').style.display = 'none';
+      switchLang('eng');
       
       const qContainer = document.getElementById('dynamic-questions');
       let questionsHtml = "";
@@ -193,6 +208,25 @@
       document.getElementById('question-area').scrollTop = 0;
       
       changeAppScreen('screen-play');
+    };
+
+    // ★追加：英語と日本語を切り替える関数
+    window.switchLang = function(lang) {
+      const tabEng = document.getElementById('tab-eng');
+      const tabJap = document.getElementById('tab-jap');
+      const passageArea = document.getElementById('passage-area');
+      
+      if (lang === 'eng') {
+        tabEng.classList.add('active');
+        tabJap.classList.remove('active');
+        passageArea.innerHTML = '<p>' + currentThemeData.passage_en.replace(/\n/g, '<br>') + '</p>';
+      } else {
+        tabJap.classList.add('active');
+        tabEng.classList.remove('active');
+        let japText = currentThemeData.passage_ja ? currentThemeData.passage_ja.replace(/\n/g, '<br>') : 'このテーマには日本語訳がまだ登録されていません。';
+        passageArea.innerHTML = '<p style="color: #27ae60; font-weight: bold; margin-bottom: 10px;">💡 日本語訳</p><p>' + japText + '</p>';
+      }
+      passageArea.scrollTop = 0; // 切り替えたら一番上までスクロールを戻す
     };
 
     window.buildAppQuestionHTML = function(qNum, qData) {
@@ -250,10 +284,9 @@
         document.getElementById(qId + '-card').classList.add('locked'); 
       }
 
-      // ★追加機能：採点完了後、英語長文の下に「日本語訳」を表示する！
-      const passageArea = document.getElementById('passage-area');
+      // ★採点完了後、スプレッドシートに日本語訳が存在する場合のみタブを表示する
       if (currentThemeData.passage_ja) {
-        passageArea.innerHTML += '<div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #bdc3c7;"><div style="color: #27ae60; font-weight: bold; margin-bottom: 10px;">💡 日本語訳</div><p style="font-size: 15px; color: #555;">' + currentThemeData.passage_ja.replace(/\n/g, '<br>') + '</p></div>';
+        document.getElementById('trans-tabs').style.display = 'flex';
       }
       
       const submitBtn = document.getElementById('submit-btn');
