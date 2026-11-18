@@ -6,7 +6,18 @@
   <title>COMPASS 英語長文トレーニング</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; background: #fdfdfd; color: #333; overflow: hidden; }
+    body { 
+      font-family: sans-serif; 
+      /* ★修正1：URLバーの伸び縮みに自動対応する高さ設定（100dvh） */
+      height: 100dvh; 
+      display: flex; 
+      flex-direction: column; 
+      background: #fdfdfd; 
+      color: #333; 
+      overflow: hidden; 
+      /* ★修正2：スマホの「引っ張り更新（リロード）」を強制禁止する */
+      overscroll-behavior-y: none;
+    }
     .screen { display: none; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
     .screen.active { display: flex; }
     #screen-login { justify-content: center; align-items: center; background: #2c3e50; }
@@ -22,28 +33,36 @@
     .mode-card.advanced { border-left: 6px solid #e74c3c; }
     .mode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
     .mode-desc { font-size: 13px; color: #7f8c8d; line-height: 1.4; }
-    .header-basic { background: #2d3436; color: #fff; padding: 15px 20px; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* ★修正3：ヘッダーなどが潰れて文字と被らないように保護（flex-shrink: 0;） */
+    .header-basic { flex-shrink: 0; background: #2d3436; color: #fff; padding: 15px 20px; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .header-left-group { display: flex; align-items: center; gap: 10px; }
     .back-to-mode-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
     .user-badge { font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; }
-    #theme-list-container { padding: 20px; overflow-y: auto; flex: 1; }
+    
+    /* ★修正4：リスト部分も引っ張り更新を防ぐ */
+    #theme-list-container { padding: 20px; overflow-y: auto; flex: 1; overscroll-behavior-y: contain; }
+    
     .theme-item { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid #27ae60; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .theme-item.advanced-item { border-left-color: #e74c3c; }
     .theme-info { flex: 1; }
     .theme-level { font-size: 13px; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
     .theme-name { font-size: 18px; font-weight: bold; color: #2c3e50; }
     .theme-arrow { color: #3498db; font-weight: bold; font-size: 16px; }
-    header { background: #2d3436; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: bold; }
+    
+    header { flex-shrink: 0; background: #2d3436; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: bold; }
     .back-to-select-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+    
     #main-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
     
-    /* ★追加：翻訳切り替えタブのデザイン */
-    .trans-tabs { display: none; flex-direction: row; background: #fff; border-bottom: 2px solid #00b894; flex: none; }
+    .trans-tabs { display: none; flex-direction: row; background: #fff; border-bottom: 2px solid #00b894; flex-shrink: 0; }
     .trans-tab { flex: 1; padding: 12px; font-size: 15px; font-weight: bold; border: none; background: #f4f7f6; color: #7f8c8d; cursor: pointer; transition: 0.2s; }
     .trans-tab.active { background: #00b894; color: #fff; }
     
-    #passage-area { flex: none; min-height: 30%; max-height: 50%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; }
-    #question-area { flex: 1; padding: 20px; background: #f4f7f6; overflow-y: auto; }
+    /* ★修正5：長文・問題エリアの引っ張り更新も防ぐ */
+    #passage-area { flex: none; min-height: 30%; max-height: 50%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; overscroll-behavior-y: contain; }
+    #question-area { flex: 1; padding: 20px; background: #f4f7f6; overflow-y: auto; overscroll-behavior-y: contain; }
+    
     .question-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #3498db; }
     .question-title { font-weight: bold; margin-bottom: 12px; color: #2980b9; font-size: 14px; }
     .question-text { font-size: 16px; margin-bottom: 15px; line-height: 1.5; }
@@ -101,7 +120,6 @@
       <span id="play-header-theme">テーマ名</span>
     </header>
     <div id="main-container">
-      <!-- ★追加：翻訳切り替えタブ（普段は非表示） -->
       <div id="trans-tabs" class="trans-tabs">
         <button id="tab-eng" class="trans-tab active" onclick="switchLang('eng')">🇺🇸 英語長文</button>
         <button id="tab-jap" class="trans-tab" onclick="switchLang('jap')">🇯🇵 日本語訳</button>
@@ -182,7 +200,6 @@
       currentThemeData = allThemesData[index];
       document.getElementById('play-header-theme').innerText = currentThemeData.theme + ' (' + currentThemeData.level + ')';
       
-      // 最初はタブを隠し、強制的に「英語長文」を表示させる
       document.getElementById('trans-tabs').style.display = 'none';
       switchLang('eng');
       
@@ -210,7 +227,6 @@
       changeAppScreen('screen-play');
     };
 
-    // ★追加：英語と日本語を切り替える関数
     window.switchLang = function(lang) {
       const tabEng = document.getElementById('tab-eng');
       const tabJap = document.getElementById('tab-jap');
@@ -226,7 +242,7 @@
         let japText = currentThemeData.passage_ja ? currentThemeData.passage_ja.replace(/\n/g, '<br>') : 'このテーマには日本語訳がまだ登録されていません。';
         passageArea.innerHTML = '<p style="color: #27ae60; font-weight: bold; margin-bottom: 10px;">💡 日本語訳</p><p>' + japText + '</p>';
       }
-      passageArea.scrollTop = 0; // 切り替えたら一番上までスクロールを戻す
+      passageArea.scrollTop = 0; 
     };
 
     window.buildAppQuestionHTML = function(qNum, qData) {
@@ -284,7 +300,6 @@
         document.getElementById(qId + '-card').classList.add('locked'); 
       }
 
-      // ★採点完了後、スプレッドシートに日本語訳が存在する場合のみタブを表示する
       if (currentThemeData.passage_ja) {
         document.getElementById('trans-tabs').style.display = 'flex';
       }
