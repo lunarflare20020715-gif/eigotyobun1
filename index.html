@@ -8,14 +8,12 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
       font-family: sans-serif; 
-      /* ★修正1：URLバーの伸び縮みに自動対応する高さ設定（100dvh） */
       height: 100dvh; 
       display: flex; 
       flex-direction: column; 
       background: #fdfdfd; 
       color: #333; 
       overflow: hidden; 
-      /* ★修正2：スマホの「引っ張り更新（リロード）」を強制禁止する */
       overscroll-behavior-y: none;
     }
     .screen { display: none; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
@@ -34,13 +32,11 @@
     .mode-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
     .mode-desc { font-size: 13px; color: #7f8c8d; line-height: 1.4; }
     
-    /* ★修正3：ヘッダーなどが潰れて文字と被らないように保護（flex-shrink: 0;） */
     .header-basic { flex-shrink: 0; background: #2d3436; color: #fff; padding: 15px 20px; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .header-left-group { display: flex; align-items: center; gap: 10px; }
     .back-to-mode-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
     .user-badge { font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; }
     
-    /* ★修正4：リスト部分も引っ張り更新を防ぐ */
     #theme-list-container { padding: 20px; overflow-y: auto; flex: 1; overscroll-behavior-y: contain; }
     
     .theme-item { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid #27ae60; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -55,13 +51,20 @@
     
     #main-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
     
+    /* ★追加：採点後の大画面切り替えタブ */
+    .review-tabs { display: none; flex-direction: row; background: #2d3436; flex-shrink: 0; }
+    .review-tab { flex: 1; padding: 14px; font-size: 16px; font-weight: bold; border: none; background: #2d3436; color: #b2bec3; cursor: pointer; transition: 0.2s; }
+    .review-tab.active { background: #3498db; color: #fff; border-bottom: 4px solid #2980b9; }
+
     .trans-tabs { display: none; flex-direction: row; background: #fff; border-bottom: 2px solid #00b894; flex-shrink: 0; }
     .trans-tab { flex: 1; padding: 12px; font-size: 15px; font-weight: bold; border: none; background: #f4f7f6; color: #7f8c8d; cursor: pointer; transition: 0.2s; }
     .trans-tab.active { background: #00b894; color: #fff; }
     
-    /* ★修正5：長文・問題エリアの引っ張り更新も防ぐ */
     #passage-area { flex: none; min-height: 30%; max-height: 50%; padding: 25px 20px; background: #fff; border-bottom: 3px solid #e0e0e0; overflow-y: auto; font-size: 16px; line-height: 1.8; overscroll-behavior-y: contain; }
     #question-area { flex: 1; padding: 20px; background: #f4f7f6; overflow-y: auto; overscroll-behavior-y: contain; }
+    
+    /* ★追加：大画面モード用のクラス（画面の高さを100%使う） */
+    .full-mode { flex: 1 !important; max-height: none !important; min-height: none !important; }
     
     .question-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #3498db; }
     .question-title { font-weight: bold; margin-bottom: 12px; color: #2980b9; font-size: 14px; }
@@ -120,10 +123,18 @@
       <span id="play-header-theme">テーマ名</span>
     </header>
     <div id="main-container">
+      <!-- ★追加：採点後に登場する、復習用の大画面切り替えタブ -->
+      <div id="review-tabs" class="review-tabs">
+        <button id="tab-review-qa" class="review-tab active" onclick="switchReviewTab('qa')">📝 採点結果・解説</button>
+        <button id="tab-review-passage" class="review-tab" onclick="switchReviewTab('passage')">📖 長文・和訳</button>
+      </div>
+
+      <!-- 英語⇔日本語の切り替えタブ -->
       <div id="trans-tabs" class="trans-tabs">
         <button id="tab-eng" class="trans-tab active" onclick="switchLang('eng')">🇺🇸 英語長文</button>
         <button id="tab-jap" class="trans-tab" onclick="switchLang('jap')">🇯🇵 日本語訳</button>
       </div>
+      
       <div id="passage-area"></div>
       
       <div id="question-area">
@@ -200,7 +211,18 @@
       currentThemeData = allThemesData[index];
       document.getElementById('play-header-theme').innerText = currentThemeData.theme + ' (' + currentThemeData.level + ')';
       
+      // 問題を解いている間は「大画面タブ」は隠し、上下分割のままにする
+      document.getElementById('review-tabs').style.display = 'none';
       document.getElementById('trans-tabs').style.display = 'none';
+      
+      const passageArea = document.getElementById('passage-area');
+      const questionArea = document.getElementById('question-area');
+      
+      passageArea.style.display = '';
+      passageArea.classList.remove('full-mode');
+      questionArea.style.display = '';
+      questionArea.classList.remove('full-mode');
+      
       switchLang('eng');
       
       const qContainer = document.getElementById('dynamic-questions');
@@ -221,8 +243,8 @@
       submitBtn.style.display = "block";
       
       document.getElementById('return-btn').style.display = "none"; 
-      document.getElementById('passage-area').scrollTop = 0; 
-      document.getElementById('question-area').scrollTop = 0;
+      passageArea.scrollTop = 0; 
+      questionArea.scrollTop = 0;
       
       changeAppScreen('screen-play');
     };
@@ -243,6 +265,40 @@
         passageArea.innerHTML = '<p style="color: #27ae60; font-weight: bold; margin-bottom: 10px;">💡 日本語訳</p><p>' + japText + '</p>';
       }
       passageArea.scrollTop = 0; 
+    };
+
+    // ★追加：採点後の「大画面モード切り替え」の動き
+    window.switchReviewTab = function(mode) {
+      const tabQa = document.getElementById('tab-review-qa');
+      const tabPassage = document.getElementById('tab-review-passage');
+      const passageArea = document.getElementById('passage-area');
+      const questionArea = document.getElementById('question-area');
+      const transTabs = document.getElementById('trans-tabs');
+      
+      if (mode === 'qa') {
+        // 解説を全画面で表示
+        tabQa.classList.add('active');
+        tabPassage.classList.remove('active');
+        
+        passageArea.style.display = 'none';
+        if (transTabs) transTabs.style.display = 'none';
+        
+        questionArea.style.display = 'block';
+        questionArea.classList.add('full-mode');
+      } else {
+        // 長文・和訳を全画面で表示
+        tabPassage.classList.add('active');
+        tabQa.classList.remove('active');
+        
+        questionArea.style.display = 'none';
+        
+        passageArea.style.display = 'block';
+        passageArea.classList.add('full-mode');
+        
+        if (currentThemeData.passage_ja) {
+          transTabs.style.display = 'flex';
+        }
+      }
     };
 
     window.buildAppQuestionHTML = function(qNum, qData) {
@@ -300,9 +356,9 @@
         document.getElementById(qId + '-card').classList.add('locked'); 
       }
 
-      if (currentThemeData.passage_ja) {
-        document.getElementById('trans-tabs').style.display = 'flex';
-      }
+      // ★採点完了後、大画面切り替えタブを表示し、最初は「解説」を大画面で表示する
+      document.getElementById('review-tabs').style.display = 'flex';
+      switchReviewTab('qa');
       
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.innerText = "採点＆成績を記録中..."; 
